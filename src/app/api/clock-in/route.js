@@ -75,12 +75,14 @@ export async function POST(request) {
 }
 
 function formatDateTime(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  let h = date.getHours();
-  const min = String(date.getMinutes()).padStart(2, "0");
-  const s = String(date.getSeconds()).padStart(2, "0");
+  // Convert to Taiwan time (UTC+8)
+  const twTime = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+  const y = twTime.getUTCFullYear();
+  const m = String(twTime.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(twTime.getUTCDate()).padStart(2, "0");
+  let h = twTime.getUTCHours();
+  const min = String(twTime.getUTCMinutes()).padStart(2, "0");
+  const s = String(twTime.getUTCSeconds()).padStart(2, "0");
   const ampm = h >= 12 ? "PM" : "AM";
   h = h % 12 || 12;
   return `${y}/${m}/${d} ${String(h).padStart(2, "0")}:${min}:${s} ${ampm}`;

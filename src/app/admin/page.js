@@ -52,9 +52,8 @@ export default function AdminPage() {
     let filtered = records;
     if (from || to) {
       filtered = records.filter((r) => {
-        // DateTime format: "YYYY/MM/DD hh:mm:ss AM/PM"
-        const dateStr = r.dateTime.split(" ")[0]; // "YYYY/MM/DD"
-        const recordDate = dateStr.replace(/\//g, "-"); // "YYYY-MM-DD"
+        const dateStr = r.dateTime.split(" ")[0];
+        const recordDate = dateStr.replace(/\//g, "-");
         if (from && recordDate < from) return false;
         if (to && recordDate > to) return false;
         return true;
@@ -207,27 +206,53 @@ export default function AdminPage() {
   }
 
   const tabs = [
-    { key: "employees", label: "👤 員工管理" },
-    { key: "locations", label: "📍 地點管理" },
-    { key: "attendance", label: "📋 打卡紀錄" },
+    { key: "employees", label: "員工管理" },
+    { key: "locations", label: "地點管理" },
+    { key: "attendance", label: "打卡紀錄" },
   ];
 
+  const inputCls =
+    "w-full px-3 py-2.5 border border-sky-200 rounded-xl bg-sky-50/40 focus:ring-2 focus:ring-sky-300 focus:border-sky-400 outline-none transition text-slate-700 placeholder-slate-400 text-sm";
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header
+        className="bg-white border-b border-sky-100"
+        style={{ boxShadow: "0 2px 12px rgba(14,165,233,0.08)" }}
+      >
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-gray-800">🏢 惟伊整合行銷 - 管理後台</h1>
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center"
+              style={{ background: "linear-gradient(135deg, #3b82f6, #06b6d4)" }}
+            >
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                />
+              </svg>
+            </div>
+            <div>
+              <div className="text-xs text-sky-500 font-semibold tracking-widest uppercase leading-none">
+                惟伊整合行銷
+              </div>
+              <div className="text-base font-bold text-slate-800 leading-tight">管理後台</div>
+            </div>
+          </div>
           <div className="flex gap-2">
             <button
               onClick={() => router.push("/dashboard")}
-              className="text-sm px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition"
+              className="text-sm px-4 py-2 rounded-xl border border-sky-200 text-sky-600 hover:bg-sky-50 transition font-medium"
             >
               前往打卡
             </button>
             <button
               onClick={handleLogout}
-              className="text-sm px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition text-gray-600"
+              className="text-sm px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition font-medium"
             >
               登出
             </button>
@@ -239,8 +264,10 @@ export default function AdminPage() {
         {/* Message */}
         {msg.text && (
           <div
-            className={`mb-4 px-4 py-3 rounded-lg text-sm ${
-              msg.type === "success" ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"
+            className={`mb-4 px-4 py-3 rounded-xl text-sm font-medium border ${
+              msg.type === "success"
+                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                : "bg-red-50 text-red-700 border-red-200"
             }`}
           >
             {msg.text}
@@ -248,7 +275,7 @@ export default function AdminPage() {
         )}
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-6 bg-white rounded-lg p-1 shadow-sm border">
+        <div className="flex gap-1 mb-6 bg-white rounded-2xl p-1.5 border border-sky-100" style={{ boxShadow: "0 2px 12px rgba(14,165,233,0.08)" }}>
           {tabs.map((t) => (
             <button
               key={t.key}
@@ -256,9 +283,16 @@ export default function AdminPage() {
                 setTab(t.key);
                 if (t.key === "attendance") fetchAttendance();
               }}
-              className={`flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition ${
-                tab === t.key ? "bg-blue-600 text-white shadow" : "text-gray-600 hover:bg-gray-50"
-              }`}
+              className="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all duration-200"
+              style={
+                tab === t.key
+                  ? {
+                      background: "linear-gradient(135deg, #3b82f6, #06b6d4)",
+                      color: "white",
+                      boxShadow: "0 4px 12px rgba(59,130,246,0.35)",
+                    }
+                  : { color: "#64748b" }
+              }
             >
               {t.label}
             </button>
@@ -267,18 +301,18 @@ export default function AdminPage() {
 
         {/* ─── Employees Tab ─── */}
         {tab === "employees" && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-sm border p-6">
-              <h2 className="text-lg font-bold text-gray-800 mb-4">
+          <div className="space-y-5">
+            <div className="bg-white rounded-2xl border border-sky-100 p-6" style={{ boxShadow: "0 2px 12px rgba(14,165,233,0.07)" }}>
+              <h2 className="text-base font-bold text-slate-800 mb-4">
                 {editingEmp ? "編輯員工" : "新增員工"}
               </h2>
-              <form onSubmit={handleSaveEmployee} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <form onSubmit={handleSaveEmployee} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <input
                   type="text"
                   placeholder="姓名"
                   value={empForm.name}
                   onChange={(e) => setEmpForm({ ...empForm, name: e.target.value })}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className={inputCls}
                   required
                 />
                 <input
@@ -286,7 +320,7 @@ export default function AdminPage() {
                   placeholder="帳號"
                   value={empForm.account}
                   onChange={(e) => setEmpForm({ ...empForm, account: e.target.value })}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className={inputCls}
                   required
                 />
                 <input
@@ -294,13 +328,13 @@ export default function AdminPage() {
                   placeholder="密碼"
                   value={empForm.password}
                   onChange={(e) => setEmpForm({ ...empForm, password: e.target.value })}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className={inputCls}
                   required
                 />
                 <select
                   value={empForm.role}
                   onChange={(e) => setEmpForm({ ...empForm, role: e.target.value })}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className={inputCls}
                 >
                   <option value="employee">員工</option>
                   <option value="admin">管理員</option>
@@ -309,7 +343,8 @@ export default function AdminPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+                    className="px-6 py-2 rounded-xl text-white text-sm font-semibold disabled:opacity-50 transition"
+                    style={{ background: "linear-gradient(135deg, #3b82f6, #06b6d4)" }}
                   >
                     {editingEmp ? "更新" : "新增"}
                   </button>
@@ -320,7 +355,7 @@ export default function AdminPage() {
                         setEditingEmp(null);
                         setEmpForm({ name: "", account: "", password: "", role: "employee" });
                       }}
-                      className="px-6 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition"
+                      className="px-6 py-2 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition text-sm font-medium"
                     >
                       取消
                     </button>
@@ -329,30 +364,30 @@ export default function AdminPage() {
               </form>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+            <div className="bg-white rounded-2xl border border-sky-100 overflow-hidden" style={{ boxShadow: "0 2px 12px rgba(14,165,233,0.07)" }}>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b">
-                    <tr>
-                      <th className="text-left px-4 py-3 font-medium text-gray-600">姓名</th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-600">帳號</th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-600">密碼</th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-600">角色</th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-600">操作</th>
+                  <thead>
+                    <tr style={{ background: "linear-gradient(135deg, #f0f9ff, #e0f2fe)" }}>
+                      <th className="text-left px-4 py-3 font-semibold text-sky-700">姓名</th>
+                      <th className="text-left px-4 py-3 font-semibold text-sky-700">帳號</th>
+                      <th className="text-left px-4 py-3 font-semibold text-sky-700">密碼</th>
+                      <th className="text-left px-4 py-3 font-semibold text-sky-700">角色</th>
+                      <th className="text-left px-4 py-3 font-semibold text-sky-700">操作</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y">
+                  <tbody className="divide-y divide-sky-50">
                     {employees.map((emp) => (
-                      <tr key={emp.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3">{emp.name}</td>
-                        <td className="px-4 py-3 font-mono text-gray-600">{emp.account}</td>
-                        <td className="px-4 py-3 font-mono text-gray-600">{emp.password}</td>
+                      <tr key={emp.id} className="hover:bg-sky-50/40 transition-colors">
+                        <td className="px-4 py-3 font-medium text-slate-800">{emp.name}</td>
+                        <td className="px-4 py-3 font-mono text-slate-600 text-xs">{emp.account}</td>
+                        <td className="px-4 py-3 font-mono text-slate-600 text-xs">{emp.password}</td>
                         <td className="px-4 py-3">
                           <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
                               emp.role === "admin"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-blue-100 text-blue-700"
+                                ? "bg-violet-100 text-violet-700"
+                                : "bg-sky-100 text-sky-700"
                             }`}
                           >
                             {emp.role === "admin" ? "管理員" : "員工"}
@@ -361,7 +396,7 @@ export default function AdminPage() {
                         <td className="px-4 py-3">
                           <button
                             onClick={() => startEditEmployee(emp)}
-                            className="text-blue-600 hover:text-blue-800 text-sm"
+                            className="text-sky-500 hover:text-sky-700 text-sm font-medium transition"
                           >
                             編輯
                           </button>
@@ -370,7 +405,7 @@ export default function AdminPage() {
                     ))}
                     {employees.length === 0 && (
                       <tr>
-                        <td colSpan={5} className="px-4 py-8 text-center text-gray-400">
+                        <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
                           尚無員工資料
                         </td>
                       </tr>
@@ -384,47 +419,54 @@ export default function AdminPage() {
 
         {/* ─── Locations Tab ─── */}
         {tab === "locations" && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-sm border p-6">
-              <h2 className="text-lg font-bold text-gray-800 mb-4">
+          <div className="space-y-5">
+            <div className="bg-white rounded-2xl border border-sky-100 p-6" style={{ boxShadow: "0 2px 12px rgba(14,165,233,0.07)" }}>
+              <h2 className="text-base font-bold text-slate-800 mb-4">
                 {editingLoc ? "編輯地點" : "新增打卡地點"}
               </h2>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <input
                   type="text"
                   placeholder="地點名稱（例：總公司）"
                   value={locForm.name}
                   onChange={(e) => setLocForm({ ...locForm, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className={inputCls}
                   required
                 />
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="輸入地址搜尋（例：台北市信義區信義路五段7號）"
+                    placeholder="輸入地址搜尋（例：高雄市仁武區京吉一路86號）"
                     value={locForm.address}
                     onChange={(e) => {
                       setLocForm({ ...locForm, address: e.target.value });
                       setLocGeo(null);
                       setSearchResults([]);
                     }}
-                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSearchAddress(); }}}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleSearchAddress();
+                      }
+                    }}
+                    className={`flex-1 ${inputCls}`}
+                    style={{ width: "auto" }}
                   />
                   <button
                     type="button"
                     onClick={handleSearchAddress}
                     disabled={searchingAddr || !locForm.address.trim()}
-                    className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition disabled:opacity-50 whitespace-nowrap"
+                    className="px-4 py-2 rounded-xl text-white text-sm font-semibold disabled:opacity-50 whitespace-nowrap transition"
+                    style={{ background: "linear-gradient(135deg, #3b82f6, #06b6d4)" }}
                   >
-                    {searchingAddr ? "搜尋中..." : "🔍 搜尋地址"}
+                    {searchingAddr ? "搜尋中..." : "搜尋地址"}
                   </button>
                 </div>
 
                 {/* Search results - multiple matches */}
                 {searchResults.length > 0 && !locGeo && (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <div className="text-sm text-yellow-800 font-medium mb-2">找到多個結果，請選擇：</div>
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                    <div className="text-sm text-amber-800 font-semibold mb-2">找到多個結果，請選擇：</div>
                     <div className="space-y-2 max-h-48 overflow-y-auto">
                       {searchResults.map((r, i) => (
                         <button
@@ -432,15 +474,15 @@ export default function AdminPage() {
                           type="button"
                           onClick={() => {
                             setLocGeo({
-                              lat: parseFloat(r.lat),
-                              lng: parseFloat(r.lon),
-                              displayName: r.display_name,
+                              lat: r.lat,
+                              lng: r.lng,
+                              displayName: r.displayName,
                             });
                             setSearchResults([]);
                           }}
-                          className="w-full text-left px-3 py-2 bg-white rounded-lg border border-yellow-200 hover:bg-yellow-100 transition text-sm text-gray-700"
+                          className="w-full text-left px-3 py-2 bg-white rounded-lg border border-amber-200 hover:bg-amber-50 transition text-sm text-slate-700"
                         >
-                          {r.display_name}
+                          {r.displayName}
                         </button>
                       ))}
                     </div>
@@ -449,14 +491,13 @@ export default function AdminPage() {
 
                 {/* Geocode result */}
                 {locGeo && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div className="text-sm text-blue-800 font-medium mb-1">📍 搜尋結果</div>
-                    <div className="text-sm text-blue-700">{locGeo.displayName}</div>
-                    <div className="text-xs text-blue-500 mt-1 font-mono">
+                  <div className="bg-sky-50 border border-sky-200 rounded-xl p-4">
+                    <div className="text-xs font-semibold text-sky-600 uppercase tracking-wider mb-1">搜尋結果</div>
+                    <div className="text-sm text-slate-700">{locGeo.displayName}</div>
+                    <div className="text-xs text-sky-500 mt-1 font-mono">
                       座標：{locGeo.lat.toFixed(6)}, {locGeo.lng.toFixed(6)}
                     </div>
-                    {/* Map preview */}
-                    <div className="mt-3 rounded-lg overflow-hidden border border-blue-200">
+                    <div className="mt-3 rounded-xl overflow-hidden border border-sky-200">
                       <iframe
                         width="100%"
                         height="200"
@@ -473,7 +514,8 @@ export default function AdminPage() {
                     type="button"
                     onClick={handleSaveLocation}
                     disabled={loading || !locForm.name || !locGeo}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+                    className="px-6 py-2 rounded-xl text-white text-sm font-semibold disabled:opacity-50 transition"
+                    style={{ background: "linear-gradient(135deg, #3b82f6, #06b6d4)" }}
                   >
                     {editingLoc ? "更新地點" : "新增地點"}
                   </button>
@@ -486,7 +528,7 @@ export default function AdminPage() {
                         setLocGeo(null);
                         setSearchResults([]);
                       }}
-                      className="px-6 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition"
+                      className="px-6 py-2 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition text-sm font-medium"
                     >
                       取消
                     </button>
@@ -495,31 +537,31 @@ export default function AdminPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+            <div className="bg-white rounded-2xl border border-sky-100 overflow-hidden" style={{ boxShadow: "0 2px 12px rgba(14,165,233,0.07)" }}>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b">
-                    <tr>
-                      <th className="text-left px-4 py-3 font-medium text-gray-600">地點名稱</th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-600">地址</th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-600">操作</th>
+                  <thead>
+                    <tr style={{ background: "linear-gradient(135deg, #f0f9ff, #e0f2fe)" }}>
+                      <th className="text-left px-4 py-3 font-semibold text-sky-700">地點名稱</th>
+                      <th className="text-left px-4 py-3 font-semibold text-sky-700">地址</th>
+                      <th className="text-left px-4 py-3 font-semibold text-sky-700">操作</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y">
+                  <tbody className="divide-y divide-sky-50">
                     {locations.map((loc) => (
-                      <tr key={loc.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 font-medium">{loc.name}</td>
-                        <td className="px-4 py-3 text-gray-600 text-sm">{loc.address || `${loc.latitude}, ${loc.longitude}`}</td>
+                      <tr key={loc.id} className="hover:bg-sky-50/40 transition-colors">
+                        <td className="px-4 py-3 font-medium text-slate-800">{loc.name}</td>
+                        <td className="px-4 py-3 text-slate-600 text-xs">{loc.address || `${loc.latitude}, ${loc.longitude}`}</td>
                         <td className="px-4 py-3 flex gap-3">
                           <button
                             onClick={() => startEditLocation(loc)}
-                            className="text-blue-600 hover:text-blue-800 text-sm"
+                            className="text-sky-500 hover:text-sky-700 text-sm font-medium transition"
                           >
                             編輯
                           </button>
                           <button
                             onClick={() => handleDeleteLocation(loc.id)}
-                            className="text-red-600 hover:text-red-800 text-sm"
+                            className="text-red-400 hover:text-red-600 text-sm font-medium transition"
                           >
                             刪除
                           </button>
@@ -528,7 +570,7 @@ export default function AdminPage() {
                     ))}
                     {locations.length === 0 && (
                       <tr>
-                        <td colSpan={3} className="px-4 py-8 text-center text-gray-400">
+                        <td colSpan={3} className="px-4 py-10 text-center text-slate-400">
                           尚未設定打卡地點
                         </td>
                       </tr>
@@ -542,18 +584,19 @@ export default function AdminPage() {
 
         {/* ─── Attendance Tab ─── */}
         {tab === "attendance" && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-sm border p-4">
+          <div className="space-y-5">
+            <div className="bg-white rounded-2xl border border-sky-100 p-4" style={{ boxShadow: "0 2px 12px rgba(14,165,233,0.07)" }}>
               <div className="flex flex-col sm:flex-row gap-3">
                 <input
                   type="text"
                   placeholder="依員工姓名篩選..."
                   value={filterName}
                   onChange={(e) => setFilterName(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className={`flex-1 ${inputCls}`}
+                  style={{ width: "auto" }}
                 />
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500 whitespace-nowrap">從</span>
+                  <span className="text-sm text-slate-400 whitespace-nowrap">從</span>
                   <input
                     type="date"
                     value={dateFrom}
@@ -561,9 +604,10 @@ export default function AdminPage() {
                       setDateFrom(e.target.value);
                       applyDateFilter(attendance, e.target.value, dateTo);
                     }}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                    className={inputCls}
+                    style={{ width: "auto" }}
                   />
-                  <span className="text-sm text-gray-500 whitespace-nowrap">到</span>
+                  <span className="text-sm text-slate-400 whitespace-nowrap">到</span>
                   <input
                     type="date"
                     value={dateTo}
@@ -571,39 +615,41 @@ export default function AdminPage() {
                       setDateTo(e.target.value);
                       applyDateFilter(attendance, dateFrom, e.target.value);
                     }}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                    className={inputCls}
+                    style={{ width: "auto" }}
                   />
                 </div>
                 <button
                   onClick={fetchAttendance}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap"
+                  className="px-6 py-2 rounded-xl text-white text-sm font-semibold whitespace-nowrap transition"
+                  style={{ background: "linear-gradient(135deg, #3b82f6, #06b6d4)" }}
                 >
                   查詢
                 </button>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+            <div className="bg-white rounded-2xl border border-sky-100 overflow-hidden" style={{ boxShadow: "0 2px 12px rgba(14,165,233,0.07)" }}>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b">
-                    <tr>
-                      <th className="text-left px-4 py-3 font-medium text-gray-600">員工姓名</th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-600">打卡地點</th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-600">日期時間</th>
+                  <thead>
+                    <tr style={{ background: "linear-gradient(135deg, #f0f9ff, #e0f2fe)" }}>
+                      <th className="text-left px-4 py-3 font-semibold text-sky-700">員工姓名</th>
+                      <th className="text-left px-4 py-3 font-semibold text-sky-700">打卡地點</th>
+                      <th className="text-left px-4 py-3 font-semibold text-sky-700">日期時間</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y">
+                  <tbody className="divide-y divide-sky-50">
                     {filteredAttendance.map((record) => (
-                      <tr key={record.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 font-medium">{record.employee}</td>
-                        <td className="px-4 py-3">{record.location}</td>
-                        <td className="px-4 py-3 font-mono text-gray-600 text-xs">{record.dateTime}</td>
+                      <tr key={record.id} className="hover:bg-sky-50/40 transition-colors">
+                        <td className="px-4 py-3 font-medium text-slate-800">{record.employee}</td>
+                        <td className="px-4 py-3 text-slate-600">{record.location}</td>
+                        <td className="px-4 py-3 font-mono text-slate-500 text-xs">{record.dateTime}</td>
                       </tr>
                     ))}
                     {filteredAttendance.length === 0 && (
                       <tr>
-                        <td colSpan={3} className="px-4 py-8 text-center text-gray-400">
+                        <td colSpan={3} className="px-4 py-10 text-center text-slate-400">
                           尚無打卡紀錄
                         </td>
                       </tr>
