@@ -73,73 +73,24 @@ export default function AdminPage() {
     setTimeout(() => setMsg({ type: "", text: "" }), 3000);
   }
 
-  // ─── Address geocoding ───
-  function parseTWAddress(addr) {
-    // Try to split Taiwan address like "高雄市仁武區京吉一路86號" into structured parts
-    const match = addr.match(/^(.+?[市縣])(.+?[區鄉鎮市])(.+?[路街道巷弄]+.*)$/);
-    if (match) {
-      // Return "road district city" format for better Nominatim results
-      return `${match[3]} ${match[2]} ${match[1]}`;
-    }
-    return addr;
-  }
-
-  async function searchNominatim(query, countrycodes = "") {
-    const params = new URLSearchParams({
-      format: "json",
-      q: query,
-      limit: "5",
-      "accept-language": "zh-TW",
-    });
-    if (countrycodes) params.set("countrycodes", countrycodes);
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?${params}`,
-      { headers: { "User-Agent": "AttendanceSystem/1.0" } }
-    );
-    return res.json();
-  }
-
+  // ─── Address geocoding (Google Maps) ───
   async function handleSearchAddress() {
     if (!locForm.address.trim()) return;
     setSearchingAddr(true);
     setLocGeo(null);
     setSearchResults([]);
     try {
-      const addr = locForm.address.trim();
-      const parsed = parseTWAddress(addr);
+      const res = await fetch(`/api/geocode?address=${encodeURIComponent(locForm.address.trim())}`);
+      const data = await res.json();
 
-      // Try full address first
-      let data = await searchNominatim(parsed, "tw");
-      if (data.length === 0 && parsed !== addr) data = await searchNominatim(addr, "tw");
-      if (data.length === 0) data = await searchNominatim(addr);
-
-      // Fallback: strip building number (e.g. "86號" → "") and retry
-      if (data.length === 0) {
-        const stripped = addr.replace(/\d+號.*$/, "").trim();
-        if (stripped && stripped !== addr) {
-          const strippedParsed = parseTWAddress(stripped);
-          data = await searchNominatim(strippedParsed, "tw");
-          if (data.length === 0) data = await searchNominatim(stripped, "tw");
-          if (data.length > 0) {
-            // Mark as approximate
-            data = data.map((r) => ({ ...r, approximate: true }));
-          }
-        }
-      }
-
-      if (data.length > 0) {
-        if (data.length === 1) {
-          setLocGeo({
-            lat: parseFloat(data[0].lat),
-            lng: parseFloat(data[0].lon),
-            displayName: data[0].display_name,
-            approximate: data[0].approximate || false,
-          });
+      if (data.results && data.results.length > 0) {
+        if (data.results.length === 1) {
+          setLocGeo(data.results[0]);
         } else {
-          setSearchResults(data);
+          setSearchResults(data.results);
         }
       } else {
-        showMsg("error", "找不到此地址，請嘗試只輸入路名（例：京吉一路）");
+        showMsg("error", "找不到此地址，請確認地址是否正確");
       }
     } catch {
       showMsg("error", "地址搜尋失敗");
@@ -473,9 +424,7 @@ export default function AdminPage() {
                 {/* Search results - multiple matches */}
                 {searchResults.length > 0 && !locGeo && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <div className="text-sm text-yellow-800 font-medium mb-2">
-                      找到多個結果，請選擇：{searchResults[0]?.approximate && <span className="ml-1 font-normal text-yellow-600">（門牌號碼未找到，以路段位置代替）</span>}
-                    </div>
+                    <div className="text-sm text-yellow-800 font-medium mb-2">找到多個結果，請選擇：</div>
                     <div className="space-y-2 max-h-48 overflow-y-auto">
                       {searchResults.map((r, i) => (
                         <button
@@ -501,9 +450,7 @@ export default function AdminPage() {
                 {/* Geocode result */}
                 {locGeo && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div className="text-sm text-blue-800 font-medium mb-1">
-                      📍 搜尋結果{locGeo.approximate && <span className="ml-2 text-yellow-600 font-normal">（門牌號碼未找到，以路段位置代替）</span>}
-                    </div>
+                    <div className="text-sm text-blue-800 font-medium mb-1">📍 搜尋結果</div>
                     <div className="text-sm text-blue-700">{locGeo.displayName}</div>
                     <div className="text-xs text-blue-500 mt-1 font-mono">
                       座標：{locGeo.lat.toFixed(6)}, {locGeo.lng.toFixed(6)}
