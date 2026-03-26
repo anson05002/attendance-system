@@ -118,16 +118,26 @@ export async function deleteLocation(pageId) {
 
 // ─── Attendance ───
 
-export async function createAttendance({ employee, location, dateTime, coordinates }) {
-  return notion.pages.create({
-    parent: { database_id: ATTENDANCE_DB },
-    properties: {
-      Employee: { title: [{ text: { content: employee } }] },
-      Location: { rich_text: [{ text: { content: location } }] },
-      DateTime: { rich_text: [{ text: { content: dateTime } }] },
-      Coordinates: { rich_text: [{ text: { content: coordinates } }] },
-    },
-  });
+export async function createAttendance({ employee, location, dateTime, coordinates, network, device }) {
+  const properties = {
+    Employee: { title: [{ text: { content: employee } }] },
+    Location: { rich_text: [{ text: { content: location } }] },
+    DateTime: { rich_text: [{ text: { content: dateTime } }] },
+    Coordinates: { rich_text: [{ text: { content: coordinates } }] },
+  };
+  if (network) properties.Network = { rich_text: [{ text: { content: network } }] };
+  if (device) properties.Device = { rich_text: [{ text: { content: device } }] };
+
+  try {
+    return await notion.pages.create({ parent: { database_id: ATTENDANCE_DB }, properties });
+  } catch {
+    // Properties may not exist yet — auto-create them and retry
+    await notion.databases.update({
+      database_id: ATTENDANCE_DB,
+      properties: { Network: { rich_text: {} }, Device: { rich_text: {} } },
+    });
+    return await notion.pages.create({ parent: { database_id: ATTENDANCE_DB }, properties });
+  }
 }
 
 export async function getAttendanceRecords(employeeName) {
@@ -138,6 +148,7 @@ export async function getAttendanceRecords(employeeName) {
     database_id: ATTENDANCE_DB,
     ...(filter && { filter }),
     sorts: [{ property: "DateTime", direction: "descending" }],
+    page_size: 100,
   });
   return res.results.map((page) => {
     const p = page.properties;
@@ -147,6 +158,8 @@ export async function getAttendanceRecords(employeeName) {
       location: p.Location?.rich_text?.[0]?.plain_text ?? "",
       dateTime: p.DateTime?.rich_text?.[0]?.plain_text ?? "",
       coordinates: p.Coordinates?.rich_text?.[0]?.plain_text ?? "",
+      network: p.Network?.rich_text?.[0]?.plain_text ?? "",
+      device: p.Device?.rich_text?.[0]?.plain_text ?? "",
     };
   });
 }

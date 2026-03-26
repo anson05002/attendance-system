@@ -4,9 +4,14 @@ import { isWithinRange, getDistance } from "@/lib/geo";
 
 export async function GET(request) {
   try {
+    const userName = decodeURIComponent(request.headers.get("x-user-name") || "");
+    const userRole = request.headers.get("x-user-role") || "";
     const { searchParams } = new URL(request.url);
-    const employee = searchParams.get("employee") || "";
-    const records = await getAttendanceRecords(employee || undefined);
+    const requestedEmployee = searchParams.get("employee") || "";
+
+    // Non-admin users can only fetch their own records
+    const filterEmployee = userRole === "admin" ? requestedEmployee : userName;
+    const records = await getAttendanceRecords(filterEmployee || undefined);
     return NextResponse.json(records);
   } catch (err) {
     console.error("Get attendance error:", err);
@@ -17,7 +22,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const userName = decodeURIComponent(request.headers.get("x-user-name") || "");
-    const { latitude, longitude } = await request.json();
+    const { latitude, longitude, network, device } = await request.json();
 
     if (latitude == null || longitude == null) {
       return NextResponse.json({ error: "無法取得定位資訊，請開啟定位權限" }, { status: 400 });
@@ -50,7 +55,7 @@ export async function POST(request) {
       );
     }
 
-    // Format date: YYYY/MM/DD hh:mm:ss AM/PM
+    // Format date using Taiwan time (UTC+8)
     const now = new Date();
     const dateTime = formatDateTime(now);
     const coordinates = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
@@ -60,6 +65,8 @@ export async function POST(request) {
       location: closestLocation.name,
       dateTime,
       coordinates,
+      network: network || "",
+      device: device || "",
     });
 
     return NextResponse.json({
