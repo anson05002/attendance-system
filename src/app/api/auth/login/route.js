@@ -41,6 +41,6 @@ export async function POST(request) {
     return res;
   } catch (err) {
     console.error("Login error:", err);
-    return NextResponse.json({ error: "伺服器錯誤" }, { status: 500 });
+    return NextResponse.json({ error: "伺服器錯誤", detail: err?.message ?? String(err) }, { status: 500 });
   }
 }
