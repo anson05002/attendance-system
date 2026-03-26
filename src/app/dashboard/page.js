@@ -3,25 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-// ─── Network & Device helpers ───
-function getNetworkInfo() {
-  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-  if (!conn) return "未知網路";
-  const type = conn.type;
-  const et = conn.effectiveType;
-  if (type === "wifi") return "WiFi";
-  if (type === "cellular") {
-    if (et === "4g") return "行動網路 4G/5G";
-    if (et === "3g") return "行動網路 3G";
-    if (et === "2g" || et === "slow-2g") return "行動網路 2G";
-    return "行動網路";
-  }
-  if (type === "ethernet") return "有線網路";
-  if (et === "4g") return "行動網路 4G/5G";
-  if (et === "3g") return "行動網路 3G";
-  return "未知網路";
-}
-
+// ─── Device helper ───
 function getDeviceInfo() {
   const ua = navigator.userAgent;
   let os = "";
@@ -105,14 +87,13 @@ export default function DashboardPage() {
         const { latitude, longitude } = position.coords;
         setMessage("正在打卡...");
 
-        const network = getNetworkInfo();
         const device = getDeviceInfo();
 
         try {
           const res = await fetch("/api/clock-in", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ latitude, longitude, network, device }),
+            body: JSON.stringify({ latitude, longitude, device }),
           });
           const data = await res.json();
 
@@ -337,14 +318,6 @@ export default function DashboardPage() {
                           <span className="truncate">{r.location}</span>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {r.network && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-100 text-sky-600 text-xs font-medium">
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
-                              </svg>
-                              {r.network}
-                            </span>
-                          )}
                           {r.device && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-xs font-medium">
                               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -587,14 +587,17 @@ export default function AdminPage() {
           <div className="space-y-5">
             <div className="bg-white rounded-2xl border border-sky-100 p-4" style={{ boxShadow: "0 2px 12px rgba(14,165,233,0.07)" }}>
               <div className="flex flex-col sm:flex-row gap-3">
-                <input
-                  type="text"
-                  placeholder="依員工姓名篩選..."
+                <select
                   value={filterName}
                   onChange={(e) => setFilterName(e.target.value)}
                   className={`flex-1 ${inputCls}`}
                   style={{ width: "auto" }}
-                />
+                >
+                  <option value="">全部員工</option>
+                  {employees.map((emp) => (
+                    <option key={emp.id} value={emp.name}>{emp.name}</option>
+                  ))}
+                </select>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-slate-400 whitespace-nowrap">從</span>
                   <input

@@ -22,7 +22,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const userName = decodeURIComponent(request.headers.get("x-user-name") || "");
-    const { latitude, longitude, network, device } = await request.json();
+    const { latitude, longitude, device } = await request.json();
 
     if (latitude == null || longitude == null) {
       return NextResponse.json({ error: "無法取得定位資訊，請開啟定位權限" }, { status: 400 });
@@ -65,7 +65,6 @@ export async function POST(request) {
       location: closestLocation.name,
       dateTime,
       coordinates,
-      network: network || "",
       device: device || "",
     });
 
